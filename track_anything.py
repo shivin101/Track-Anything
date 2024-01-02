@@ -2,6 +2,7 @@ import PIL
 from tqdm import tqdm
 
 from tools.interact_tools import SamControler
+from app import 
 from tracker.base_tracker import BaseTracker
 from inpainter.base_inpainter import BaseInpainter
 import numpy as np
@@ -66,6 +67,7 @@ def parse_augment():
     parser.add_argument('--port', type=int, default=6080, help="only useful when running gradio applications")  
     parser.add_argument('--debug', action="store_true")
     parser.add_argument('--mask_save', default=False)
+    parser.add_argument('--input', default=None)
     args = parser.parse_args()
 
     if args.debug:
@@ -88,7 +90,12 @@ if __name__ == "__main__":
     mask = np.zeros_like(image)[:,:,0]
     mask[0,0]= 1
     trackany = TrackingAnything('/ssd1/gaomingqi/checkpoints/sam_vit_h_4b8939.pth','/ssd1/gaomingqi/checkpoints/XMem-s012.pth', args)
-    masks, logits ,painted_images= trackany.generator(images, mask)
+    if args.input:
+        arr = np.loadtxt(input,
+                        delimiter=",", dtype=str)
+        print(arr)
+    else:
+        masks, logits ,painted_images= trackany.generator(images, mask)
         
         
     
