@@ -7,7 +7,56 @@ from inpainter.base_inpainter import BaseInpainter
 import numpy as np
 import argparse
 
+import cv2
+import psutil
+import time 
+import os
 
+# extract frames from upload video
+def get_frames_from_video(video_input, video_state,model):
+    """
+    Args:
+        video_path:str
+        timestamp:float64
+    Return 
+        [[0:nearest_frame], [nearest_frame:], nearest_frame]
+    """
+    video_path = video_input
+    frames = []
+    user_name = time.time()
+    operation_log = [("",""),("Upload video already. Try click the image for adding targets to track and inpaint.","Normal")]
+    try:
+        cap = cv2.VideoCapture(video_path)
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if ret == True:
+                current_memory_usage = psutil.virtual_memory().percent
+                frames.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+                if current_memory_usage > 90:
+                    operation_log = [("Memory usage is too high (>90%). Stop the video extraction. Please reduce the video resolution or frame rate.", "Error")]
+                    print("Memory usage is too high (>90%). Please reduce the video resolution or frame rate.")
+                    break
+            else:
+                break
+    except (OSError, TypeError, ValueError, KeyError, SyntaxError) as e:
+        print("read_frame_source:{} error. {}\n".format(video_path, str(e)))
+    image_size = (frames[0].shape[0],frames[0].shape[1]) 
+    # initialize video_state
+    video_state = {
+        "user_name": user_name,
+        "video_name": os.path.split(video_path)[-1],
+        "origin_images": frames,
+        "painted_images": frames.copy(),
+        "masks": [np.zeros((frames[0].shape[0],frames[0].shape[1]), np.uint8)]*len(frames),
+        "logits": [None]*len(frames),
+        "select_frame_number": 0,
+        "fps": fps
+        }
+    video_info = "Video Name: {}, FPS: {}, Total Frames: {}, Image Size:{}".format(video_state["video_name"], video_state["fps"], len(frames), image_size)
+    model.samcontroler.sam_controler.reset_image() 
+    model.samcontroler.sam_controler.set_image(video_state["origin_images"][0])
+    return video_state, video_info, video_state["origin_images"][0]
 
 class TrackingAnything():
     def __init__(self, sam_checkpoint, xmem_checkpoint, e2fgvi_checkpoint, args):
@@ -80,15 +129,14 @@ if __name__ == "__main__":
     painted_images = None
     images = []
     args = parse_augment()
+    video_path = args.input
+
     
 
-    trackany = TrackingAnything('/ssd1/gaomingqi/checkpoints/sam_vit_h_4b8939.pth','/ssd1/gaomingqi/checkpoints/XMem-s012.pth', args)
-    if args.input:
-        arr = np.loadtxt(input,
-                        delimiter=",", dtype=str)
-        print(arr)
-    else:
-        masks, logits ,painted_images= trackany.generator(images, mask)
+    model = TrackingAnything('./checkpoints/sam_vit_h_4b8939.pth','./checkpoints/XMem-s012.pth','./checkpoints/',args)
+    video_state,video_info,first_frame = get_frames_from_video(video_input=video_path,video_state=None,model)
+    mask,_._ = model.first_frame_click(first_frame,points,labels)
+    masks, logits ,painted_images= trackany.generator(images, mask)
         
         
     
