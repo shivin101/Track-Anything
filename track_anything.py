@@ -2,7 +2,6 @@ import PIL
 from tqdm import tqdm
 
 from tools.interact_tools import SamControler
-from app import 
 from tracker.base_tracker import BaseTracker
 from inpainter.base_inpainter import BaseInpainter
 import numpy as np
@@ -64,9 +63,9 @@ def parse_augment():
     parser = argparse.ArgumentParser()
     parser.add_argument('--device', type=str, default="cuda:0")
     parser.add_argument('--sam_model_type', type=str, default="vit_h")
-    parser.add_argument('--port', type=int, default=6080, help="only useful when running gradio applications")  
+    #parser.add_argument('--port', type=int, default=6080, help="only useful when running gradio applications")  
     parser.add_argument('--debug', action="store_true")
-    parser.add_argument('--mask_save', default=False)
+    parser.add_argument('--mask_save', default=True)
     parser.add_argument('--input', default=None)
     args = parser.parse_args()
 
@@ -80,15 +79,9 @@ if __name__ == "__main__":
     logits = None
     painted_images = None
     images = []
-    image  = np.array(PIL.Image.open('/hhd3/gaoshang/truck.jpg'))
     args = parse_augment()
-    # images.append(np.ones((20,20,3)).astype('uint8'))
-    # images.append(np.ones((20,20,3)).astype('uint8'))
-    images.append(image)
-    images.append(image)
+    
 
-    mask = np.zeros_like(image)[:,:,0]
-    mask[0,0]= 1
     trackany = TrackingAnything('/ssd1/gaomingqi/checkpoints/sam_vit_h_4b8939.pth','/ssd1/gaomingqi/checkpoints/XMem-s012.pth', args)
     if args.input:
         arr = np.loadtxt(input,
