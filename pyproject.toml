@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "track-anything"
 version = "0.1.0"
-description = "Initial poetry version for version maintenance"
+description = "Dependency file for the current version of track anything packaged for morphic"
 authors = ["shivin101 <shivin.yadav@gmail.com>"]
 readme = "README.md"
 
