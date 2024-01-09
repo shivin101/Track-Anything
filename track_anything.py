@@ -146,15 +146,23 @@ if __name__ == "__main__":
     np.save('./outputs/result',mask)
     masks, logits ,painted_images= model.generator(video_state["origin_images"], mask)
     video_state["masks"]=masks
-    if not os.path.exists('./outputs/mask/{}'.format(video_state["video_name"].split('.')[0])):
-        os.makedirs('./result/mask/{}'.format(video_state["video_name"].split('.')[0]))
-        i = 0
-        print("save mask")
-        for mask in video_state["masks"]:
-            np.save(os.path.join('./result/mask/{}'.format(video_state["video_name"].split('.')[0]), '{:05d}.npy'.format(i)), mask)
-            i+=1
+    if args.mask_save==True:
+        if not os.path.exists('./outputs/mask/{}'.format(video_state["video_name"].split('.')[0])):
+            os.makedirs('./result/mask/{}'.format(video_state["video_name"].split('.')[0]))
+            i = 0
+            print("save mask")
+            for mask in video_state["masks"]:
+                np.save(os.path.join('./result/mask/{}'.format(video_state["video_name"].split('.')[0]), '{:05d}.npy'.format(i)), mask)
+                i+=1
         
-        
+    
+    fps = video_state['fps']
+    name =  os.path.join('./result/mask_video/{}'.format(video_state["video_name"].split('.')[0]), '.mp4')
+    size = first_frame.shape
+    out = cv2.VideoWriter(name, cv2.VideoWriter_fourcc(*'mp4v'), fps, (size[1], size[0]), False)
+    for mask in masks:
+        out.write(mask)
+    out.release()
     
     
     
