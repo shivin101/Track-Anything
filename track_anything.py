@@ -1,6 +1,6 @@
 import PIL
 from tqdm import tqdm
-
+import sys
 sys.path.append(sys.path[0]+"/tracker")
 sys.path.append(sys.path[0]+"/tracker/model")
 from tools.interact_tools import SamControler
