@@ -155,7 +155,7 @@ if __name__ == "__main__":
             np.save(os.path.join('./result/mask/{}'.format(video_state["video_name"].split('.')[0]), '{:05d}.npy'.format(i)), mask)
             i+=1
         
-    
+    print("saving resultant mask video")
     fps = video_state['fps']
     name =  os.path.join('./result/mask_video/{}'.format(video_state["video_name"].split('.')[0]), '.mp4')
     size = first_frame.shape
@@ -163,6 +163,7 @@ if __name__ == "__main__":
     for mask in masks:
         out.write(mask)
     out.release()
+    print("Mask video successfully saved in {}".format(name))
     
     
     
