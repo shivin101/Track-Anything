@@ -144,7 +144,7 @@ if __name__ == "__main__":
     mask,_,_ = model.first_frame_click(image=first_frame,points=points,labels=labels)
     print(mask.shape)
     np.save('./outputs/result',mask)
-    masks, logits ,painted_images= model.generator(video_state["original_images"], mask)
+    masks, logits ,painted_images= model.generator(video_state["origin_images"], mask)
     video_state["masks"]=masks
     if not os.path.exists('./outputs/mask/{}'.format(video_state["video_name"].split('.')[0])):
         os.makedirs('./result/mask/{}'.format(video_state["video_name"].split('.')[0]))
