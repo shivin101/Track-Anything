@@ -141,7 +141,7 @@ if __name__ == "__main__":
     print(first_frame.shape)
     points = np.array([[1,2],[30,25]])
     labels = np.array([0,0])
-    mask,_._ = model.first_frame_click(image=first_frame,points=points,labels=labels)
+    mask,_,_ = model.first_frame_click(image=first_frame,points=points,labels=labels)
     print(mask.shape)
     np.save(mask,'./outputs/result.np')
     #masks, logits ,painted_images= model.generator(video_state["original_images"], mask)
