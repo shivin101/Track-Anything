@@ -161,6 +161,8 @@ if __name__ == "__main__":
     print("saving resultant mask video")
     fps = video_state['fps']
     name =  os.path.join('./result/mask_video/{}'.format(video_state["video_name"].split('.')[0]), 'mask.mp4')
+    if not os.path.exists('./result/mask_video/{}'.format(video_state["video_name"].split('.')[0])):
+            os.makedirs('./result/mask_video/{}'.format(video_state["video_name"].split('.')[0]))
 
     
     ffmpeg.input(os.path.join('./result/mask/{}'.format(video_state["video_name"].split('.')[0]), '*.jpeg'), pattern_type='glob', framerate=fps).output(name).run()
