@@ -15,3 +15,5 @@ av
 openmim
 tqdm
 psutil
+mmcv-full
+ffmpeg
