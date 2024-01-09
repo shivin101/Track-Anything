@@ -143,7 +143,7 @@ if __name__ == "__main__":
     labels = np.array([0,0])
     mask,_,_ = model.first_frame_click(image=first_frame,points=points,labels=labels)
     print(mask.shape)
-    np.save('./outputs/result.np',mask)
+    np.save('./outputs/result',mask)
     masks, logits ,painted_images= model.generator(video_state["original_images"], mask)
     video_state["masks"]=masks
     if not os.path.exists('./outputs/mask/{}'.format(video_state["video_name"].split('.')[0])):
