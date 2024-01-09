@@ -159,7 +159,7 @@ if __name__ == "__main__":
     fps = video_state['fps']
     name =  os.path.join('./result/mask_video/{}'.format(video_state["video_name"].split('.')[0]), 'mask.mp4')
     size = first_frame.shape
-    out = cv2.VideoWriter(name, cv2.VideoWriter_fourcc(*'mp4v'), fps, (size[1], size[0]), False)
+    out = cv2.VideoWriter(name, cv2.VideoWriter_fourcc(*'mp4v'), fps, (size[1], size[0]))
     print("Masks are:",len(masks),size)
     for mask in masks:
         out.write(mask)
