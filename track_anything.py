@@ -154,7 +154,7 @@ if __name__ == "__main__":
         i = 0
         print("save mask")
         for mask in video_state["masks"]:
-            im = Image.fromarray(mask)
+            im = Image.fromarray(mask*255)
             im.save(os.path.join('./result/mask/{}'.format(video_state["video_name"].split('.')[0]), '{:05d}.jpeg'.format(i)))
             i+=1
         
