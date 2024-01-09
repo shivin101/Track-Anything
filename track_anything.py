@@ -147,13 +147,13 @@ if __name__ == "__main__":
     masks, logits ,painted_images= model.generator(video_state["origin_images"], mask)
     video_state["masks"]=masks
     if args.mask_save==True:
-        if not os.path.exists('./outputs/mask/{}'.format(video_state["video_name"].split('.')[0])):
+        if not os.path.exists('./result/mask/{}'.format(video_state["video_name"].split('.')[0])):
             os.makedirs('./result/mask/{}'.format(video_state["video_name"].split('.')[0]))
-            i = 0
-            print("save mask")
-            for mask in video_state["masks"]:
-                np.save(os.path.join('./result/mask/{}'.format(video_state["video_name"].split('.')[0]), '{:05d}.npy'.format(i)), mask)
-                i+=1
+        i = 0
+        print("save mask")
+        for mask in video_state["masks"]:
+            np.save(os.path.join('./result/mask/{}'.format(video_state["video_name"].split('.')[0]), '{:05d}.npy'.format(i)), mask)
+            i+=1
         
     
     fps = video_state['fps']
