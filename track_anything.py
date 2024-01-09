@@ -120,12 +120,30 @@ def parse_augment():
     parser.add_argument('--debug', action="store_true")
     parser.add_argument('--mask_save', default=True)
     parser.add_argument('--input', default=None)
+    parser.add_argument('--output', default=None)
     args = parser.parse_args()
 
     if args.debug:
         print(args)
     return args 
 
+# convert points input to prompt state
+def get_prompt(click_state, click_input):
+    inputs = json.loads(click_input)
+    points = click_state[0]
+    labels = click_state[1]
+    for input in inputs:
+        points.append(input[:2])
+        labels.append(input[2])
+    click_state[0] = points
+    click_state[1] = labels
+    prompt = {
+        "prompt_type":["click"],
+        "input_point":click_state[0],
+        "input_label":click_state[1],
+        "multimask_output":"True",
+    }
+    return prompt
 
 if __name__ == "__main__":
     masks = None
@@ -139,13 +157,13 @@ if __name__ == "__main__":
 
     model = TrackingAnything('./checkpoints/sam_vit_h_4b8939.pth','./checkpoints/XMem-s012.pth','./checkpoints/E2FGVI-HQ-CVPR22.pth',args)
     video_state,video_info,first_frame = get_frames_from_video(video_input=video_path,video_state=None,model=model)
-    print(video_info)
-    print(first_frame.shape)
+    
+    #For testing
     points = np.array([[1,2],[30,25]])
     labels = np.array([0,0])
+
     mask,_,_ = model.first_frame_click(image=first_frame,points=points,labels=labels)
-    print(mask.shape)
-    np.save('./outputs/result',mask)
+   
     masks, logits ,painted_images= model.generator(video_state["origin_images"], mask)
     video_state["masks"]=masks
     if args.mask_save==True:
@@ -166,13 +184,6 @@ if __name__ == "__main__":
 
     
     ffmpeg.input(os.path.join('./result/mask/{}'.format(video_state["video_name"].split('.')[0]), '*.jpeg'), pattern_type='glob', framerate=fps).output(name).run()
-    
-    # size = first_frame.shape
-    # out = cv2.VideoWriter(name, cv2.VideoWriter_fourcc(*'mp4v'), fps, (size[1], size[0]))
-    # print("Masks are:",len(masks),size)
-    # for mask in masks:
-    #     out.write(mask)
-    # out.release()
     print("Mask video successfully saved in {}".format(name))
     
     
