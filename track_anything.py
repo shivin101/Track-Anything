@@ -137,8 +137,9 @@ if __name__ == "__main__":
 
     model = TrackingAnything('./checkpoints/sam_vit_h_4b8939.pth','./checkpoints/XMem-s012.pth','./checkpoints/E2FGVI-HQ-CVPR22.pth',args)
     video_state,video_info,first_frame = get_frames_from_video(video_input=video_path,video_state=None,model=model)
+    print(video_info)
     points = np.array([[1,2],[30,25]])
-    labels = np.arrat([0,0])
+    labels = np.array([0,0])
     mask,_._ = model.first_frame_click(first_frame,points,labels)
     print(mask.shape)
     np.save(mask,'./outputs/result.np')
