@@ -64,7 +64,10 @@ def get_frames_from_video(video_input, video_state,model):
     return video_state, video_info, video_state["origin_images"][0]
 
 def get_prompt(click_input):
-    inputs = json.loads(click_input)
+    
+    with open(click_input,'r') as f:
+        inputs = json.load(f)
+    f.close()
     points = []
     labels = []
     for input in inputs:
