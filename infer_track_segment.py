@@ -35,7 +35,8 @@ if __name__ == "__main__":
     
     points,labels = get_prompt(args.input_clicks)
     np.array(points, dtype=np.float32)
-    print(points,labels)
+    print("Points:",points)
+    print("Labels:",labels)
     mask,_,_ = model.first_frame_click(image=first_frame,points=points,labels=labels)
    
     masks, logits ,painted_images= model.generator(video_state["origin_images"], mask)
