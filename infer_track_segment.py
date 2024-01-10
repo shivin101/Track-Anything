@@ -34,6 +34,7 @@ if __name__ == "__main__":
     video_state,video_info,first_frame = get_frames_from_video(video_input=video_path,video_state=None,model=model)
     
     points,labels = get_prompt(args.input_clicks)
+    np.array(points, dtype=np.float32)
     print(points,labels)
     mask,_,_ = model.first_frame_click(image=first_frame,points=points,labels=labels)
    
