@@ -73,7 +73,7 @@ def get_prompt(click_input):
     for input in inputs:
         points.append(input[:2])
         labels.append(input[2])
-    return points,labels
+    return np.array(points),np.array(labels)
 
 def save_mask_video(video_state,args):
     if args.mask_save==True:
