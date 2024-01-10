@@ -26,6 +26,7 @@ if __name__ == "__main__":
     images = []
     args = parse_augment()
     video_path = args.input_video
+    
 
     
 
