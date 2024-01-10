@@ -25,7 +25,7 @@ if __name__ == "__main__":
     painted_images = None
     images = []
     args = parse_augment()
-    video_path = args.input
+    video_path = args.input_video
 
     
 
