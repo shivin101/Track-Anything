@@ -15,6 +15,7 @@ import psutil
 import time 
 import os
 import ffmpeg
+import json
 
 # extract frames from upload video
 def get_frames_from_video(video_input, video_state,model):
@@ -62,6 +63,37 @@ def get_frames_from_video(video_input, video_state,model):
     model.samcontroler.sam_controler.set_image(video_state["origin_images"][0])
     return video_state, video_info, video_state["origin_images"][0]
 
+def get_prompt(click_input):
+    inputs = json.loads(click_input)
+    points = []
+    labels = []
+    for input in inputs:
+        points.append(input[:2])
+        labels.append(input[2])
+    return points,labels
+
+def save_mask_video(video_state,args):
+    if args.mask_save==True:
+        if not os.path.exists('./result/mask/{}'.format(video_state["video_name"].split('.')[0])):
+            os.makedirs('./result/mask/{}'.format(video_state["video_name"].split('.')[0]))
+        i = 0
+        print("save mask")
+        for mask in video_state["masks"]:
+            im = Image.fromarray(mask*255)
+            im.save(os.path.join('./result/mask/{}'.format(video_state["video_name"].split('.')[0]), '{:05d}.jpeg'.format(i)))
+            i+=1
+        
+    print("saving resultant mask video")
+    fps = video_state['fps']
+    name =  os.path.join('./result/mask_video/{}'.format(video_state["video_name"].split('.')[0]), 'mask.mp4')
+    if not os.path.exists('./result/mask_video/{}'.format(video_state["video_name"].split('.')[0])):
+            os.makedirs('./result/mask_video/{}'.format(video_state["video_name"].split('.')[0]))
+
+    
+    ffmpeg.input(os.path.join('./result/mask/{}'.format(video_state["video_name"].split('.')[0]), '*.jpeg'), pattern_type='glob', framerate=fps).output(name).run()
+    print("Mask video successfully saved in {}".format(name))
+    return name
+
 class TrackingAnything():
     def __init__(self, sam_checkpoint, xmem_checkpoint, e2fgvi_checkpoint, args):
         self.args = args
@@ -71,26 +103,11 @@ class TrackingAnything():
         self.samcontroler = SamControler(self.sam_checkpoint, args.sam_model_type, args.device)
         self.xmem = BaseTracker(self.xmem_checkpoint, device=args.device)
         self.baseinpainter = BaseInpainter(self.e2fgvi_checkpoint, args.device) 
-    # def inference_step(self, first_flag: bool, interact_flag: bool, image: np.ndarray, 
-    #                    same_image_flag: bool, points:np.ndarray, labels: np.ndarray, logits: np.ndarray=None, multimask=True):
-    #     if first_flag:
-    #         mask, logit, painted_image = self.samcontroler.first_frame_click(image, points, labels, multimask)
-    #         return mask, logit, painted_image
-        
-    #     if interact_flag:
-    #         mask, logit, painted_image = self.samcontroler.interact_loop(image, same_image_flag, points, labels, logits, multimask)
-    #         return mask, logit, painted_image
-        
-    #     mask, logit, painted_image = self.xmem.track(image, logit)
-    #     return mask, logit, painted_image
     
     def first_frame_click(self, image: np.ndarray, points:np.ndarray, labels: np.ndarray, multimask=True):
         mask, logit, painted_image = self.samcontroler.first_frame_click(image, points, labels, multimask)
         return mask, logit, painted_image
     
-    # def interact(self, image: np.ndarray, same_image_flag: bool, points:np.ndarray, labels: np.ndarray, logits: np.ndarray=None, multimask=True):
-    #     mask, logit, painted_image = self.samcontroler.interact_loop(image, same_image_flag, points, labels, logits, multimask)
-    #     return mask, logit, painted_image
 
     def generator(self, images: list, template_mask:np.ndarray):
         
@@ -112,79 +129,7 @@ class TrackingAnything():
         return masks, logits, painted_images
     
         
-def parse_augment():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--device', type=str, default="cuda:0")
-    parser.add_argument('--sam_model_type', type=str, default="vit_h")
-    #parser.add_argument('--port', type=int, default=6080, help="only useful when running gradio applications")  
-    parser.add_argument('--debug', action="store_true")
-    parser.add_argument('--mask_save', default=True)
-    parser.add_argument('--input', default=None)
-    parser.add_argument('--output', default=None)
-    args = parser.parse_args()
-
-    if args.debug:
-        print(args)
-    return args 
-
+def get_model(args):
+   return TrackingAnything('./checkpoints/sam_vit_h_4b8939.pth','./checkpoints/XMem-s012.pth','./checkpoints/E2FGVI-HQ-CVPR22.pth',args)
 # convert points input to prompt state
-def get_prompt(click_state, click_input):
-    inputs = json.loads(click_input)
-    points = click_state[0]
-    labels = click_state[1]
-    for input in inputs:
-        points.append(input[:2])
-        labels.append(input[2])
-    click_state[0] = points
-    click_state[1] = labels
-    prompt = {
-        "prompt_type":["click"],
-        "input_point":click_state[0],
-        "input_label":click_state[1],
-        "multimask_output":"True",
-    }
-    return prompt
 
-if __name__ == "__main__":
-    masks = None
-    logits = None
-    painted_images = None
-    images = []
-    args = parse_augment()
-    video_path = args.input
-
-    
-
-    model = TrackingAnything('./checkpoints/sam_vit_h_4b8939.pth','./checkpoints/XMem-s012.pth','./checkpoints/E2FGVI-HQ-CVPR22.pth',args)
-    video_state,video_info,first_frame = get_frames_from_video(video_input=video_path,video_state=None,model=model)
-    
-    #For testing
-    points = np.array([[1,2],[30,25]])
-    labels = np.array([0,0])
-
-    mask,_,_ = model.first_frame_click(image=first_frame,points=points,labels=labels)
-   
-    masks, logits ,painted_images= model.generator(video_state["origin_images"], mask)
-    video_state["masks"]=masks
-    if args.mask_save==True:
-        if not os.path.exists('./result/mask/{}'.format(video_state["video_name"].split('.')[0])):
-            os.makedirs('./result/mask/{}'.format(video_state["video_name"].split('.')[0]))
-        i = 0
-        print("save mask")
-        for mask in video_state["masks"]:
-            im = Image.fromarray(mask*255)
-            im.save(os.path.join('./result/mask/{}'.format(video_state["video_name"].split('.')[0]), '{:05d}.jpeg'.format(i)))
-            i+=1
-        
-    print("saving resultant mask video")
-    fps = video_state['fps']
-    name =  os.path.join('./result/mask_video/{}'.format(video_state["video_name"].split('.')[0]), 'mask.mp4')
-    if not os.path.exists('./result/mask_video/{}'.format(video_state["video_name"].split('.')[0])):
-            os.makedirs('./result/mask_video/{}'.format(video_state["video_name"].split('.')[0]))
-
-    
-    ffmpeg.input(os.path.join('./result/mask/{}'.format(video_state["video_name"].split('.')[0]), '*.jpeg'), pattern_type='glob', framerate=fps).output(name).run()
-    print("Mask video successfully saved in {}".format(name))
-    
-    
-    
