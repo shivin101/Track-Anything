@@ -34,8 +34,6 @@ if __name__ == "__main__":
     video_state,video_info,first_frame = get_frames_from_video(video_input=video_path,video_state=None,model=model)
     
     points,labels = get_prompt(args.input_clicks)
-    print("Points:",points)
-    print("Labels:",labels)
     mask,_,_ = model.first_frame_click(image=first_frame,points=points,labels=labels)
    
     masks, logits ,painted_images= model.generator(video_state["origin_images"], mask)
