@@ -10,10 +10,10 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from model.network import XMem
-from model.losses import LossComputer
-from util.log_integrator import Integrator
-from util.image_saver import pool_pairs
+from tracker.model.network import XMem
+from tracker.model.losses import LossComputer
+from tracker.util.log_integrator import Integrator
+from tracker.util.image_saver import pool_pairs
 
 
 class XMemTrainer:
