@@ -4,6 +4,11 @@ version = "0.1.0"
 description = "Dependency file for the current version of track anything packaged for morphic"
 authors = ["shivin101 <shivin.yadav@gmail.com>"]
 readme = "README.md"
+packages = [
+	{ include = "tracker" },
+    { include = "model", from="tracker" },
+    { include = "", from="orange_tree" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
