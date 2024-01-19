@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [
 	{ include = "tracker" },
     { include = "model", from="tracker" },
-    { include = "", from="orange_tree" },
+    { include = "inpainter" },
 ]
 
 [tool.poetry.dependencies]
