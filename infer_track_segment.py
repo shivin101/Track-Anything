@@ -1,7 +1,6 @@
 import argparse
-import sys
-import os
-from track_anything import *
+from model import get_model
+from utils import get_frames_from_video,get_prompt,save_mask_video
 
 def parse_augment():
     parser = argparse.ArgumentParser()
